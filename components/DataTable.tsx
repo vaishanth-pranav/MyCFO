@@ -1,0 +1,57 @@
+import React from 'react';
+import type { SheetRow, KnowledgeBase } from '../types';
+
+interface DataTableProps {
+  data: SheetRow[];
+  knowledgeBase: KnowledgeBase;
+}
+
+const formatValue = (value: any, unit: string): string => {
+  if (typeof value !== 'number') return String(value);
+
+  switch (unit) {
+    case 'currency':
+      return value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    case '%':
+      return `${value.toFixed(1)}%`;
+    case 'count':
+      return value.toLocaleString('en-US');
+    default:
+      return String(value);
+  }
+};
+
+export const DataTable: React.FC<DataTableProps> = ({ data, knowledgeBase }) => {
+  if (!data || data.length === 0) {
+    return <p>No data to display.</p>;
+  }
+  
+  const headers = Object.keys(knowledgeBase.variables).filter(key => !knowledgeBase.variables[key]?.hidden);
+
+  return (
+    <div className="overflow-x-auto relative shadow-md rounded-lg">
+      <table className="w-full text-sm text-left text-slate-500 dark:text-slate-400">
+        <thead className="text-xs text-slate-700 uppercase bg-slate-100 dark:bg-slate-700 dark:text-slate-300 sticky top-0">
+          <tr>
+            {headers.map(key => (
+              <th key={key} scope="col" className="px-6 py-3 whitespace-nowrap">
+                {knowledgeBase.variables[key]?.description || key}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, rowIndex) => (
+            <tr key={rowIndex} className="bg-white dark:bg-slate-800 border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600/20">
+              {headers.map(key => (
+                <td key={key} className="px-6 py-4 whitespace-nowrap font-mono text-right">
+                  {formatValue(row[key], knowledgeBase.variables[key]?.unit)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
