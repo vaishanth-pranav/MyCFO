@@ -1,4 +1,4 @@
-import type { KnowledgeBase } from "./types";
+import type { KnowledgeBase, KnowledgeBaseVariable } from "./types";
 
 // Fix: Explicitly type `largeCustomerVariables` to match the `KnowledgeBase` interface.
 const largeCustomerVariables: KnowledgeBase['variables'] = {
@@ -26,11 +26,34 @@ const smeCustomerVariables: KnowledgeBase['variables'] = {
     "total_revenues": { "description": "Total Revenues", "formula": "revenue_from_sme_clients", "unit": "currency", "mutable": false }
 };
 
-export const KNOWLEDGE_BASES: { [key in 'sme' | 'large']: KnowledgeBase } = {
+const largeCustomerVariablesWithoutTotalRevenue = { ...largeCustomerVariables };
+delete largeCustomerVariablesWithoutTotalRevenue.total_revenues;
+
+const hybridCustomerVariables: KnowledgeBase['variables'] = {
+    ...smeCustomerVariables,
+    ...largeCustomerVariablesWithoutTotalRevenue,
+     "revenue_from_large_clients": {
+        "description": "Revenue from Large Clients",
+        "formula": "cumulative_large_customers * average_revenue_per_large_customer",
+        "unit": "currency",
+        "mutable": false
+    },
+    "total_revenues": {
+        "description": "Total Revenues (SME + Large)",
+        "formula": "revenue_from_sme_clients + revenue_from_large_clients",
+        "unit": "currency",
+        "mutable": false
+    }
+};
+
+export const KNOWLEDGE_BASES: { [key in 'sme' | 'large' | 'hybrid']: KnowledgeBase } = {
   large: {
     variables: largeCustomerVariables
   },
   sme: {
     variables: smeCustomerVariables
+  },
+  hybrid: {
+      variables: hybridCustomerVariables
   }
 };

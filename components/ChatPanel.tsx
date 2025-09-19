@@ -42,7 +42,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
                 className={`max-w-xs md:max-w-md lg:max-w-xs xl:max-w-md px-4 py-2 rounded-xl shadow-md ${
                   msg.sender === 'user'
                     ? 'bg-gradient-to-br from-sky-500 to-cyan-500 text-white'
-                    : 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200'
+                    : 'bg-white/80 backdrop-blur-md text-slate-800'
                 }`}
               >
                 <p className="text-sm">{msg.text}</p>
@@ -51,7 +51,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
           ))}
           {isLoading && (
             <div className="flex justify-start">
-               <div className="px-4 py-2 rounded-xl bg-white dark:bg-slate-700">
+               <div className="px-4 py-2 rounded-xl bg-white/80 backdrop-blur-md">
                   <div className="flex items-center space-x-2">
                     <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
                     <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
@@ -63,7 +63,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
+      <div className="p-4 border-t border-slate-200 bg-white/50 backdrop-blur-lg shrink-0">
         <div className="relative">
           <input
             type="text"
@@ -71,13 +71,13 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="e.g., Simulate 6 months ahead..."
-            className="w-full pl-4 pr-12 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition duration-200 shadow-sm"
+            className="w-full pl-4 pr-12 py-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none transition duration-200 shadow-sm"
             disabled={isLoading}
           />
           <button
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-sky-500 text-white hover:bg-sky-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-sky-500 text-white hover:bg-sky-600 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors"
             aria-label="Send message"
           >
             <PaperAirplaneIcon className="w-5 h-5" />

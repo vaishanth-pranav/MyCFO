@@ -190,21 +190,23 @@ export const exportToExcel = (data: SheetRow[], kb: KnowledgeBase, fileName: str
   XLSX.writeFile(workbook, fileName);
 };
 
-export const exportSampleTemplate = (kb: KnowledgeBase, fileName:string, customerType: 'sme' | 'large'): void => {
+export const exportSampleTemplate = (kb: KnowledgeBase, fileName:string, customerType: 'sme' | 'large' | 'hybrid'): void => {
     const orderedHeaders = Object.keys(kb.variables);
     const mutableHeaders = orderedHeaders.filter(key => kb.variables[key]?.mutable);
 
     const sampleData = Array.from({ length: 3 }, (_, i) => {
         const row: SheetRow = { month: i + 1 };
         
-        if (customerType === 'large') {
+        // Large customer model inputs
+        if (customerType === 'large' || customerType === 'hybrid') {
             if (mutableHeaders.includes('initial_sales_people')) row['initial_sales_people'] = 5;
             if (mutableHeaders.includes('sales_rep_hired_per_month')) row['sales_rep_hired_per_month'] = (i === 0) ? 2 : 1;
             if (mutableHeaders.includes('large_customer_accounts_per_salesperson')) row['large_customer_accounts_per_salesperson'] = 1;
             if (mutableHeaders.includes('average_revenue_per_large_customer')) row['average_revenue_per_large_customer'] = 16500;
         }
 
-        if (customerType === 'sme') {
+        // SME customer model inputs
+        if (customerType === 'sme' || customerType === 'hybrid') {
             if (mutableHeaders.includes('revenue_share_for_marketing')) row['revenue_share_for_marketing'] = 35;
             if (mutableHeaders.includes('digital_marketing_spend')) row['digital_marketing_spend'] = 5000;
             if (mutableHeaders.includes('sme_cac')) row['sme_cac'] = 1500;

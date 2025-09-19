@@ -11,13 +11,13 @@ interface MetricCardProps {
 }
 
 const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon }) => (
-  <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 flex items-center space-x-4">
+  <div className="bg-white/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/20 flex items-center space-x-4">
     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-sky-400 to-cyan-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/20">
       {icon}
     </div>
     <div>
-      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">{title}</p>
-      <p className="text-2xl font-bold text-slate-900 dark:text-white">{value}</p>
+      <p className="text-sm font-medium text-slate-500 truncate">{title}</p>
+      <p className="text-2xl font-bold text-slate-900">{value}</p>
     </div>
   </div>
 );
@@ -25,7 +25,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon }) => (
 interface MetricsDashboardProps {
   lastRow: SheetRow;
   knowledgeBase: KnowledgeBase;
-  customerType: 'sme' | 'large';
+  customerType: 'sme' | 'large' | 'hybrid';
 }
 
 const formatValue = (value: any, unit: string): string => {
@@ -46,7 +46,7 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ lastRow, kno
 
   const metrics = [];
 
-  // Total Revenue (common to both)
+  // Total Revenue (common to all)
   const totalRevenue = lastRow['total_revenues'];
   metrics.push({
     title: 'Total Revenue',
@@ -54,15 +54,8 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ lastRow, kno
     icon: <DollarSignIcon className="w-6 h-6" />
   });
 
-  // Customer Count (dynamic)
-  if (customerType === 'large') {
-    const customerCount = lastRow['cumulative_large_customers'];
-    metrics.push({
-      title: 'Total Large Customers',
-      value: formatValue(customerCount, 'count'),
-      icon: <UsersIcon className="w-6 h-6" />
-    });
-  } else {
+  // Customer Count (SME)
+  if (customerType === 'sme' || customerType === 'hybrid') {
     const customerCount = lastRow['cumulative_sme_customers'];
     metrics.push({
       title: 'Total SME Customers',
@@ -70,19 +63,29 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ lastRow, kno
       icon: <UsersIcon className="w-6 h-6" />
     });
   }
+
+  // Customer Count (Large)
+  if (customerType === 'large' || customerType === 'hybrid') {
+    const customerCount = lastRow['cumulative_large_customers'];
+    metrics.push({
+      title: 'Total Large Customers',
+      value: formatValue(customerCount, 'count'),
+      icon: <BriefcaseIcon className="w-6 h-6" />
+    });
+  }
   
-  // Sales Reps (large only)
-  if (customerType === 'large') {
+  // Sales Reps (large and hybrid)
+  if (customerType === 'large' || customerType === 'hybrid') {
     const salesReps = lastRow['sales_people'];
     metrics.push({
       title: '# of Sales Reps',
       value: formatValue(salesReps, 'count'),
-      icon: <BriefcaseIcon className="w-6 h-6" />
+      icon: <UsersIcon className="w-6 h-6" />
     });
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {metrics.map(metric => (
         <MetricCard key={metric.title} {...metric} />
       ))}

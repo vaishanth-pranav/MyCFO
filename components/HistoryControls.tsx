@@ -10,8 +10,8 @@ interface HistoryControlsProps {
 }
 
 export const HistoryControls: React.FC<HistoryControlsProps> = ({ onUndo, onRedo, canUndo, canRedo }) => {
-  const buttonClass = "p-2 rounded-md transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800";
-  const enabledClass = "text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700/60";
+  const buttonClass = "p-2 rounded-md transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500";
+  const enabledClass = "text-slate-600 hover:bg-slate-200/80";
 
   return (
     <div className="flex items-center gap-1">

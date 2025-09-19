@@ -38,7 +38,7 @@ const App: React.FC = () => {
   const [isBotLoading, setIsBotLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
-  const [customerType, setCustomerType] = useState<'sme' | 'large' | null>(null);
+  const [customerType, setCustomerType] = useState<'sme' | 'large' | 'hybrid' | null>(null);
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase | null>(null);
   const [simulationInputs, setSimulationInputs] = useState<SheetRow | null>(null);
   const [activeTab, setActiveTab] = useState<'chat' | 'inputs'>('chat');
@@ -48,7 +48,9 @@ const App: React.FC = () => {
         setKnowledgeBase(KNOWLEDGE_BASES[customerType]);
         if (customerType === 'large') {
             setSelectedMetrics(['total_revenues', 'cumulative_large_customers']);
-        } else {
+        } else if (customerType === 'sme') {
+            setSelectedMetrics(['total_revenues', 'cumulative_sme_customers']);
+        } else if (customerType === 'hybrid') {
             setSelectedMetrics(['total_revenues', 'cumulative_sme_customers']);
         }
     } else {
@@ -254,27 +256,35 @@ const App: React.FC = () => {
 
   const handleExport = () => {
     if (sheetData && knowledgeBase) {
-      exportToExcel(sheetData, knowledgeBase, 'FinPilot_AI_Model_Export.xlsx');
+      exportToExcel(sheetData, knowledgeBase, 'Stratifi_AI_Model_Export.xlsx');
     }
   };
 
   const handleDownloadSample = () => {
     if (customerType && knowledgeBase) {
-      const fileName = `FinPilot_AI_Sample_Template_${customerType.toUpperCase()}.xlsx`;
+      const fileName = `Stratifi_AI_Sample_Template_${customerType.toUpperCase()}.xlsx`;
       exportSampleTemplate(knowledgeBase, fileName, customerType);
     }
   };
   
-  const tabButtonBaseClasses = "flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800 relative";
-  const activeTabClasses = "text-sky-600 dark:text-sky-400";
-  const inactiveTabClasses = "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200";
+  const tabButtonBaseClasses = "flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 relative";
+  const activeTabClasses = "text-sky-600";
+  const inactiveTabClasses = "text-slate-500 hover:text-slate-800";
 
   const renderContent = () => {
     if (!customerType) {
-      return <CustomerTypeSelector onSelectType={setCustomerType} />;
+      return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+            <CustomerTypeSelector onSelectType={setCustomerType} />
+        </div>
+      );
     }
     if (!sheetData || !knowledgeBase) {
-      return <FileUpload onFileUpload={handleFileUpload} onDownloadSample={handleDownloadSample} error={error} />;
+      return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+           <FileUpload onFileUpload={handleFileUpload} onDownloadSample={handleDownloadSample} error={error} />
+        </div>
+      );
     }
     return (
       <>
@@ -288,8 +298,8 @@ const App: React.FC = () => {
               />
             )}
             
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Financial Metrics Over Time</h2>
+            <div className="bg-white/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/20">
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">Financial Metrics Over Time</h2>
               <FinancialChart
                 data={sheetData}
                 knowledgeBase={knowledgeBase}
@@ -298,9 +308,9 @@ const App: React.FC = () => {
               />
             </div>
 
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
+            <div className="bg-white/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/20">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Financial Model</h2>
+                <h2 className="text-2xl font-bold text-slate-900">Financial Model</h2>
                 <div className="flex items-center gap-4">
                   <HistoryControls
                     onUndo={handleUndo}
@@ -316,14 +326,14 @@ const App: React.FC = () => {
           </div>
           <div className="mt-8 xl:mt-0 xl:col-span-5">
             <div className="sticky top-8">
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]">
-                    <div className="flex border-b border-slate-200 dark:border-slate-700 shrink-0">
+                <div className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]">
+                    <div className="flex border-b border-slate-200 shrink-0">
                         <button onClick={() => setActiveTab('chat')} className={`${tabButtonBaseClasses} ${activeTab === 'chat' ? activeTabClasses : inactiveTabClasses}`}>
                             <ChatBubbleIcon className="w-5 h-5"/>
                             <span>Chat</span>
                              {activeTab === 'chat' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-500"></div>}
                         </button>
-                        <div className="w-px bg-slate-200 dark:bg-slate-700"></div>
+                        <div className="w-px bg-slate-200"></div>
                          <button onClick={() => setActiveTab('inputs')} className={`${tabButtonBaseClasses} ${activeTab === 'inputs' ? activeTabClasses : inactiveTabClasses}`}>
                             <SlidersIcon className="w-5 h-5"/>
                             <span>Inputs</span>
@@ -331,7 +341,7 @@ const App: React.FC = () => {
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-800/50">
+                    <div className="flex-1 overflow-y-auto bg-sky-50/20">
                         {activeTab === 'chat' && (
                             <ChatPanel
                                 messages={chatHistory}
@@ -356,7 +366,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen text-slate-800 dark:text-slate-200 font-sans">
+    <div className="min-h-screen text-slate-800">
       <Header />
       <main className="container mx-auto px-4 py-8">
         {renderContent()}

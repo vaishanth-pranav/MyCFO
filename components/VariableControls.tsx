@@ -29,14 +29,14 @@ export const VariableControls: React.FC<VariableControlsProps> = ({ knowledgeBas
 
   return (
     <div className="h-full">
-       <div className="p-4 border-b border-slate-200/80 dark:border-slate-700/80">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Simulation Inputs</h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400">Adjust these values before your next simulation.</p>
+       <div className="p-4 border-b border-slate-200/80">
+        <h3 className="text-lg font-bold text-slate-900">Simulation Inputs</h3>
+        <p className="text-sm text-slate-500">Adjust these values before your next simulation.</p>
       </div>
       <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-85px)]">
         {mutableVariables.map(([key, config]) => (
           <div key={key}>
-            <label htmlFor={key} className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            <label htmlFor={key} className="block text-sm font-medium text-slate-700 mb-1">
               {config.description}
             </label>
             <div className="relative">
@@ -46,7 +46,7 @@ export const VariableControls: React.FC<VariableControlsProps> = ({ knowledgeBas
                 id={key}
                 value={simulationInputs[key] ?? ''}
                 onChange={(e) => handleInputChange(key, e.target.value)}
-                className={`w-full py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition duration-200 shadow-sm ${config.unit === 'currency' ? 'pl-7' : 'px-3'} ${config.unit === '%' ? 'pr-7' : ''}`}
+                className={`w-full py-2 border border-slate-300 rounded-md bg-white/50 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none transition duration-200 shadow-sm ${config.unit === 'currency' ? 'pl-7' : 'px-3'} ${config.unit === '%' ? 'pr-7' : ''}`}
               />
               {config.unit === '%' && <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 sm:text-sm">%</span>}
             </div>
