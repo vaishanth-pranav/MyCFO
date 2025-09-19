@@ -11,13 +11,13 @@ interface MetricCardProps {
 }
 
 const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon }) => (
-  <div className="bg-white/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/20 flex items-center space-x-4">
+  <div className="bg-white/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/20 dark:bg-slate-800/60 dark:border-white/10 flex items-center space-x-4">
     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-sky-400 to-cyan-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/20">
       {icon}
     </div>
     <div>
-      <p className="text-sm font-medium text-slate-500 truncate">{title}</p>
-      <p className="text-2xl font-bold text-slate-900">{value}</p>
+      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">{title}</p>
+      <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{value}</p>
     </div>
   </div>
 );

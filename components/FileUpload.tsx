@@ -44,7 +44,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, onDownload
     onDownloadSample();
   };
   
-  const dropzoneClasses = `mt-8 p-8 border-2 border-dashed rounded-xl cursor-pointer transition-colors duration-300 ${isDragging ? 'border-sky-500 bg-sky-500/20' : 'border-slate-300 bg-white/50 backdrop-blur-lg hover:border-sky-400'}`;
+  const dropzoneClasses = `mt-8 p-8 border-2 border-dashed rounded-xl cursor-pointer transition-colors duration-300 ${isDragging ? 'border-sky-500 bg-sky-500/20' : 'border-slate-300 bg-white/50 backdrop-blur-lg hover:border-sky-400 dark:border-slate-600 dark:bg-slate-800/50 dark:hover:border-sky-500'}`;
 
 
   return (
@@ -64,20 +64,20 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, onDownload
           accept=".xlsx, .xls"
         />
         <div className="flex flex-col items-center justify-center space-y-4">
-          <UploadIcon className="w-12 h-12 text-slate-400" />
-          <p className="text-xl font-semibold text-slate-700">
+          <UploadIcon className="w-12 h-12 text-slate-400 dark:text-slate-500" />
+          <p className="text-xl font-semibold text-slate-700 dark:text-slate-200">
             Click to upload or drag & drop your Excel file
           </p>
-          <p className="text-slate-500">
+          <p className="text-slate-500 dark:text-slate-400">
             Supports .xlsx files
           </p>
         </div>
       </div>
        <div className="mt-6 text-center">
-        <p className="text-slate-600 mb-2">Don't have a file ready?</p>
+        <p className="text-slate-600 dark:text-slate-400 mb-2">Don't have a file ready?</p>
         <button
           onClick={handleDownloadClick}
-          className="inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors dark:bg-sky-900/50 dark:text-sky-300 dark:hover:bg-sky-900"
         >
           <FileTextIcon className="w-5 h-5" />
           Download Sample Template

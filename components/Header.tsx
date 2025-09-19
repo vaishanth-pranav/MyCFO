@@ -1,4 +1,5 @@
 import React from 'react';
+import { ThemeToggle } from './ThemeToggle';
 
 const LogoIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
@@ -15,16 +16,24 @@ const LogoIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
   return (
-    <header className="text-center pt-28 pb-8">
+    <header className="relative text-center pt-28 pb-8">
+      <div className="absolute top-6 right-6 z-20">
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+      </div>
       <div className="inline-flex items-center gap-4">
         <LogoIcon className="w-12 h-12" />
         <h1 className="text-6xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">
             Stratifi AI
         </h1>
       </div>
-      <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+      <p className="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
         Rebuilding strategic finance from the ground up—faster, smarter, autonomous.
       </p>
     </header>

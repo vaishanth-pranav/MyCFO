@@ -42,7 +42,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
                 className={`max-w-xs md:max-w-md lg:max-w-xs xl:max-w-md px-4 py-2 rounded-xl shadow-md ${
                   msg.sender === 'user'
                     ? 'bg-gradient-to-br from-sky-500 to-cyan-500 text-white'
-                    : 'bg-white/80 backdrop-blur-md text-slate-800'
+                    : 'bg-white/80 backdrop-blur-md text-slate-800 dark:bg-slate-700 dark:text-slate-200'
                 }`}
               >
                 <p className="text-sm">{msg.text}</p>
@@ -51,11 +51,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
           ))}
           {isLoading && (
             <div className="flex justify-start">
-               <div className="px-4 py-2 rounded-xl bg-white/80 backdrop-blur-md">
+               <div className="px-4 py-2 rounded-xl bg-white/80 backdrop-blur-md dark:bg-slate-700">
                   <div className="flex items-center space-x-2">
-                    <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                    <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                    <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce"></span>
+                    <span className="h-2 w-2 bg-slate-500 dark:bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="h-2 w-2 bg-slate-500 dark:bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="h-2 w-2 bg-slate-500 dark:bg-slate-400 rounded-full animate-bounce"></span>
                   </div>
                </div>
             </div>
@@ -63,7 +63,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <div className="p-4 border-t border-slate-200 bg-white/50 backdrop-blur-lg shrink-0">
+      <div className="p-4 border-t border-slate-200 bg-white/50 backdrop-blur-lg shrink-0 dark:border-slate-700 dark:bg-slate-800/50">
         <div className="relative">
           <input
             type="text"
@@ -71,7 +71,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="e.g., Simulate 6 months ahead..."
-            className="w-full pl-4 pr-12 py-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none transition duration-200 shadow-sm"
+            className="w-full pl-4 pr-12 py-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none transition duration-200 shadow-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400"
             disabled={isLoading}
           />
           <button

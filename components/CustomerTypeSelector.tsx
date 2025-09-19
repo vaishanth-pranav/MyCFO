@@ -10,17 +10,17 @@ interface CustomerTypeSelectorProps {
 export const CustomerTypeSelector: React.FC<CustomerTypeSelectorProps> = ({ onSelectType }) => {
 
   const cardBaseClasses = "relative p-10 rounded-2xl transition-all duration-300 cursor-pointer flex flex-col items-center text-center shadow-lg transform hover:-translate-y-2 group";
-  const cardColorClasses = "bg-white/50 backdrop-blur-lg border border-white/20 hover:shadow-2xl hover:shadow-sky-500/20";
-  const iconClasses = "w-20 h-20 mb-6 text-sky-500";
-  const titleClasses = "text-2xl font-bold text-slate-800 mb-3";
-  const descriptionClasses = "text-slate-600 text-base";
+  const cardColorClasses = "bg-white/50 backdrop-blur-lg border border-white/20 hover:shadow-2xl hover:shadow-sky-500/20 dark:bg-slate-800/50 dark:border-white/10 dark:hover:shadow-sky-400/10";
+  const iconClasses = "w-20 h-20 mb-6 text-sky-500 dark:text-sky-400";
+  const titleClasses = "text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3";
+  const descriptionClasses = "text-slate-600 dark:text-slate-400 text-base";
   
   return (
     <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-slate-100 mb-4">
             Select Your Business Model Focus
         </h2>
-        <p className="text-lg text-slate-600 mb-12 max-w-3xl mx-auto">
+        <p className="text-lg text-slate-600 dark:text-slate-400 mb-12 max-w-3xl mx-auto">
             Choose the go-to-market strategy that best represents the financial model you want to build or analyze.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">

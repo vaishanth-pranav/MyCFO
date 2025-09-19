@@ -29,6 +29,7 @@ const SlidersIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const App: React.FC = () => {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [history, setHistory] = useState<HistoryState>({
     past: [],
     present: null,
@@ -42,6 +43,18 @@ const App: React.FC = () => {
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase | null>(null);
   const [simulationInputs, setSimulationInputs] = useState<SheetRow | null>(null);
   const [activeTab, setActiveTab] = useState<'chat' | 'inputs'>('chat');
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
 
   useEffect(() => {
     if (customerType) {
@@ -268,8 +281,8 @@ const App: React.FC = () => {
   };
   
   const tabButtonBaseClasses = "flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 relative";
-  const activeTabClasses = "text-sky-600";
-  const inactiveTabClasses = "text-slate-500 hover:text-slate-800";
+  const activeTabClasses = "text-sky-600 dark:text-sky-400";
+  const inactiveTabClasses = "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100";
 
   const renderContent = () => {
     if (!customerType) {
@@ -298,19 +311,20 @@ const App: React.FC = () => {
               />
             )}
             
-            <div className="bg-white/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/20">
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">Financial Metrics Over Time</h2>
+            <div className="bg-white/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/20 dark:bg-slate-800/60 dark:border-white/10">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Financial Metrics Over Time</h2>
               <FinancialChart
                 data={sheetData}
                 knowledgeBase={knowledgeBase}
                 selectedMetrics={selectedMetrics}
                 onMetricChange={handleMetricSelectionChange}
+                theme={theme}
               />
             </div>
 
-            <div className="bg-white/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/20">
+            <div className="bg-white/60 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/20 dark:bg-slate-800/60 dark:border-white/10">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-slate-900">Financial Model</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Financial Model</h2>
                 <div className="flex items-center gap-4">
                   <HistoryControls
                     onUndo={handleUndo}
@@ -326,22 +340,22 @@ const App: React.FC = () => {
           </div>
           <div className="mt-8 xl:mt-0 xl:col-span-5">
             <div className="sticky top-8">
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]">
-                    <div className="flex border-b border-slate-200 shrink-0">
+                <div className="bg-white/60 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 dark:bg-slate-800/60 dark:border-white/10 overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]">
+                    <div className="flex border-b border-slate-200 dark:border-slate-700 shrink-0">
                         <button onClick={() => setActiveTab('chat')} className={`${tabButtonBaseClasses} ${activeTab === 'chat' ? activeTabClasses : inactiveTabClasses}`}>
                             <ChatBubbleIcon className="w-5 h-5"/>
                             <span>Chat</span>
-                             {activeTab === 'chat' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-500"></div>}
+                             {activeTab === 'chat' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-500 dark:bg-sky-400"></div>}
                         </button>
-                        <div className="w-px bg-slate-200"></div>
+                        <div className="w-px bg-slate-200 dark:bg-slate-700"></div>
                          <button onClick={() => setActiveTab('inputs')} className={`${tabButtonBaseClasses} ${activeTab === 'inputs' ? activeTabClasses : inactiveTabClasses}`}>
                             <SlidersIcon className="w-5 h-5"/>
                             <span>Inputs</span>
-                            {activeTab === 'inputs' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-500"></div>}
+                            {activeTab === 'inputs' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-500 dark:bg-sky-400"></div>}
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto bg-sky-50/20">
+                    <div className="flex-1 overflow-y-auto bg-sky-50/20 dark:bg-slate-900/20">
                         {activeTab === 'chat' && (
                             <ChatPanel
                                 messages={chatHistory}
@@ -366,8 +380,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen text-slate-800">
-      <Header />
+    <div className="min-h-screen text-slate-800 dark:text-slate-300">
+      <Header onToggleTheme={toggleTheme} theme={theme} />
       <main className="container mx-auto px-4 py-8">
         {renderContent()}
       </main>

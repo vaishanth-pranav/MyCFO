@@ -16,6 +16,7 @@ interface FinancialChartProps {
   knowledgeBase: KnowledgeBase;
   selectedMetrics: string[];
   onMetricChange: (metric: string) => void;
+  theme: 'light' | 'dark';
 }
 
 const COLORS = ['#0ea5e9', '#14b8a6', '#ffc658', '#ff7300', '#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
@@ -30,8 +31,8 @@ const yAxisFormatter = (value: number) => {
 const CustomTooltip = ({ active, payload, label, knowledgeBase }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/80 backdrop-blur-md p-4 border border-slate-300 rounded-lg shadow-xl">
-          <p className="label font-bold text-slate-800">{`Month: ${label}`}</p>
+        <div className="bg-white/80 backdrop-blur-md p-4 border border-slate-300 rounded-lg shadow-xl dark:bg-slate-900/80 dark:border-slate-700">
+          <p className="label font-bold text-slate-800 dark:text-slate-200">{`Month: ${label}`}</p>
           {payload.map((entry: any, index: number) => {
               const variableConfig = knowledgeBase.variables[entry.dataKey];
               const unit = variableConfig?.unit || '';
@@ -66,7 +67,7 @@ const CheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="20 6 9 17 4 12"></polyline></svg>
 );
 
-export const FinancialChart: React.FC<FinancialChartProps> = ({ data, knowledgeBase, selectedMetrics, onMetricChange }) => {
+export const FinancialChart: React.FC<FinancialChartProps> = ({ data, knowledgeBase, selectedMetrics, onMetricChange, theme }) => {
   const plottableMetrics = Object.keys(knowledgeBase.variables).filter(key => {
     if (knowledgeBase.variables[key]?.hidden) {
         return false;
@@ -75,12 +76,13 @@ export const FinancialChart: React.FC<FinancialChartProps> = ({ data, knowledgeB
     return ['currency', 'count', '%'].includes(unit);
   });
 
-  const axisTickColor = '#475569'; // slate-600
+  const axisTickColor = theme === 'light' ? '#475569' : '#94a3b8'; // slate-600 vs slate-400
+  const gridStrokeColor = theme === 'light' ? '#e2e8f0' : '#334155'; // slate-200 vs slate-700
 
   return (
     <div>
       <div className="mb-6">
-        <h3 className="text-sm font-semibold text-slate-600 border-b border-slate-200 pb-2 mb-3">Select Metrics to Plot (up to 2):</h3>
+        <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 pb-2 mb-3">Select Metrics to Plot (up to 2):</h3>
         <div className="flex flex-wrap gap-x-6 gap-y-3">
             {plottableMetrics.map(metric => (
             <label key={metric} className="flex items-center space-x-2 cursor-pointer text-sm group">
@@ -92,10 +94,10 @@ export const FinancialChart: React.FC<FinancialChartProps> = ({ data, knowledgeB
                         disabled={!selectedMetrics.includes(metric) && selectedMetrics.length >= 2}
                         className="absolute opacity-0 w-4 h-4 peer disabled:cursor-not-allowed"
                     />
-                    <span className="w-4 h-4 rounded-md border-2 border-slate-300 bg-slate-100 peer-checked:bg-sky-500 peer-checked:border-sky-500 transition-colors duration-200 group-hover:border-slate-400 peer-disabled:opacity-50"></span>
+                    <span className="w-4 h-4 rounded-md border-2 border-slate-300 bg-slate-100 peer-checked:bg-sky-500 peer-checked:border-sky-500 transition-colors duration-200 group-hover:border-slate-400 peer-disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:peer-checked:bg-sky-500 dark:peer-checked:border-sky-500"></span>
                     <CheckIcon className="absolute left-0.5 top-0.5 w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-200" />
                 </div>
-                <span className="text-slate-700 select-none group-peer-disabled:opacity-50">{knowledgeBase.variables[metric].description}</span>
+                <span className="text-slate-700 select-none group-peer-disabled:opacity-50 dark:text-slate-300">{knowledgeBase.variables[metric].description}</span>
             </label>
             ))}
         </div>
@@ -106,14 +108,14 @@ export const FinancialChart: React.FC<FinancialChartProps> = ({ data, knowledgeB
             data={data}
             margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" strokeOpacity={0.2} />
+            <CartesianGrid strokeDasharray="3 3" stroke={gridStrokeColor} strokeOpacity={0.5} />
             <XAxis dataKey="month" tick={{ fill: axisTickColor, fontSize: 12 }} />
             <YAxis yAxisId="left" stroke={COLORS[0]} tickFormatter={yAxisFormatter} tick={{ fill: axisTickColor, fontSize: 12 }} />
             {selectedMetrics.length > 1 && (
                 <YAxis yAxisId="right" orientation="right" stroke={COLORS[1]} tickFormatter={yAxisFormatter} tick={{ fill: axisTickColor, fontSize: 12 }} />
             )}
             <Tooltip content={<CustomTooltip knowledgeBase={knowledgeBase} />} />
-            <Legend />
+            <Legend wrapperStyle={{ color: axisTickColor, paddingTop: '10px' }} />
             {selectedMetrics.map((metric, index) => (
               <Line
                 key={metric}
