@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../types';
 import { PaperAirplaneIcon } from './icons/PaperAirplaneIcon';
-import { LoadingSpinner } from './LoadingSpinner';
 
+// Fix: Define the props interface for the ChatPanel component.
 interface ChatPanelProps {
   messages: ChatMessage[];
   onSendMessage: (message: string) => void;
@@ -33,19 +33,16 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg flex flex-col h-[50vh]">
-      <header className="p-4 border-b border-slate-200 dark:border-slate-700">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Chat Assistant</h2>
-      </header>
+    <div className="flex flex-col h-full">
       <div className="flex-1 p-4 overflow-y-auto">
         <div className="space-y-4">
           {messages.map((msg, index) => (
             <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-xs md:max-w-md lg:max-w-xs xl:max-w-md px-4 py-2 rounded-xl ${
+                className={`max-w-xs md:max-w-md lg:max-w-xs xl:max-w-md px-4 py-2 rounded-xl shadow-md ${
                   msg.sender === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
+                    ? 'bg-gradient-to-br from-sky-500 to-cyan-500 text-white'
+                    : 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                 }`}
               >
                 <p className="text-sm">{msg.text}</p>
@@ -54,7 +51,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
           ))}
           {isLoading && (
             <div className="flex justify-start">
-               <div className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-700">
+               <div className="px-4 py-2 rounded-xl bg-white dark:bg-slate-700">
                   <div className="flex items-center space-x-2">
                     <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
                     <span className="h-2 w-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
@@ -66,7 +63,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+      <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
         <div className="relative">
           <input
             type="text"
@@ -74,13 +71,13 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="e.g., Simulate 6 months ahead..."
-            className="w-full pl-4 pr-12 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200"
+            className="w-full pl-4 pr-12 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition duration-200 shadow-sm"
             disabled={isLoading}
           />
           <button
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-sky-500 text-white hover:bg-sky-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors"
             aria-label="Send message"
           >
             <PaperAirplaneIcon className="w-5 h-5" />

@@ -18,7 +18,7 @@ interface FinancialChartProps {
   onMetricChange: (metric: string) => void;
 }
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#e6194b', '#3cb44b', '#ffe119', '#4363d8'];
+const COLORS = ['#0ea5e9', '#14b8a6', '#ffc658', '#ff7300', '#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const yAxisFormatter = (value: number) => {
   if (typeof value !== 'number') return value;
@@ -30,7 +30,7 @@ const yAxisFormatter = (value: number) => {
 const CustomTooltip = ({ active, payload, label, knowledgeBase }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-4 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg">
+        <div className="bg-white dark:bg-slate-800 p-4 border border-slate-300 dark:border-slate-600 rounded-lg shadow-xl">
           <p className="label font-bold text-slate-800 dark:text-slate-200">{`Month: ${label}`}</p>
           {payload.map((entry: any, index: number) => {
               const variableConfig = knowledgeBase.variables[entry.dataKey];
@@ -62,6 +62,10 @@ const CustomTooltip = ({ active, payload, label, knowledgeBase }: any) => {
     return null;
 };
 
+const CheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="20 6 9 17 4 12"></polyline></svg>
+);
+
 export const FinancialChart: React.FC<FinancialChartProps> = ({ data, knowledgeBase, selectedMetrics, onMetricChange }) => {
   const plottableMetrics = Object.keys(knowledgeBase.variables).filter(key => {
     if (knowledgeBase.variables[key]?.hidden) {
@@ -77,15 +81,19 @@ export const FinancialChart: React.FC<FinancialChartProps> = ({ data, knowledgeB
         <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 pb-2 mb-3">Select Metrics to Plot (up to 2):</h3>
         <div className="flex flex-wrap gap-x-6 gap-y-3">
             {plottableMetrics.map(metric => (
-            <label key={metric} className="flex items-center space-x-2 cursor-pointer text-sm">
-                <input
-                type="checkbox"
-                checked={selectedMetrics.includes(metric)}
-                onChange={() => onMetricChange(metric)}
-                disabled={!selectedMetrics.includes(metric) && selectedMetrics.length >= 2}
-                className="form-checkbox h-4 w-4 rounded text-blue-600 bg-slate-200 dark:bg-slate-600 border-slate-300 dark:border-slate-500 focus:ring-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-                <span className="text-slate-700 dark:text-slate-300 select-none">{knowledgeBase.variables[metric].description}</span>
+            <label key={metric} className="flex items-center space-x-2 cursor-pointer text-sm group">
+                <div className="relative flex items-center">
+                    <input
+                        type="checkbox"
+                        checked={selectedMetrics.includes(metric)}
+                        onChange={() => onMetricChange(metric)}
+                        disabled={!selectedMetrics.includes(metric) && selectedMetrics.length >= 2}
+                        className="absolute opacity-0 w-4 h-4 peer disabled:cursor-not-allowed"
+                    />
+                    <span className="w-4 h-4 rounded-md border-2 border-slate-300 dark:border-slate-500 bg-slate-100 dark:bg-slate-700 peer-checked:bg-sky-500 peer-checked:border-sky-500 transition-colors duration-200 group-hover:border-slate-400 dark:group-hover:border-slate-400 peer-disabled:opacity-50"></span>
+                    <CheckIcon className="absolute left-0.5 top-0.5 w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-200" />
+                </div>
+                <span className="text-slate-700 dark:text-slate-300 select-none group-peer-disabled:opacity-50">{knowledgeBase.variables[metric].description}</span>
             </label>
             ))}
         </div>

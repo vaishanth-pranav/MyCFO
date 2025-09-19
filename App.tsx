@@ -20,6 +20,14 @@ interface HistoryState {
   future: SheetRow[][];
 }
 
+const ChatBubbleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+);
+
+const SlidersIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+);
+
 const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryState>({
     past: [],
@@ -33,6 +41,7 @@ const App: React.FC = () => {
   const [customerType, setCustomerType] = useState<'sme' | 'large' | null>(null);
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase | null>(null);
   const [simulationInputs, setSimulationInputs] = useState<SheetRow | null>(null);
+  const [activeTab, setActiveTab] = useState<'chat' | 'inputs'>('chat');
 
   useEffect(() => {
     if (customerType) {
@@ -166,6 +175,7 @@ const App: React.FC = () => {
 
           setSimulationInputs(prev => ({ ...prev, [variable]: value }));
           botResponse = `OK, I've set "${variableConfig.description}" to ${value} for the next simulation. To see the results, ask me to simulate.`;
+          setActiveTab('inputs');
           break;
         }
         case 'SIMULATE': {
@@ -254,6 +264,10 @@ const App: React.FC = () => {
       exportSampleTemplate(knowledgeBase, fileName, customerType);
     }
   };
+  
+  const tabButtonBaseClasses = "flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800 relative";
+  const activeTabClasses = "text-sky-600 dark:text-sky-400";
+  const inactiveTabClasses = "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200";
 
   const renderContent = () => {
     if (!customerType) {
@@ -264,16 +278,17 @@ const App: React.FC = () => {
     }
     return (
       <>
-        {sheetData.length > 0 && (
-          <MetricsDashboard
-            lastRow={sheetData[sheetData.length - 1]}
-            knowledgeBase={knowledgeBase}
-            customerType={customerType}
-          />
-        )}
-        <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
+        <div className="grid grid-cols-1 xl:grid-cols-12 xl:gap-8">
+          <div className="xl:col-span-7 space-y-8">
+            {sheetData.length > 0 && (
+              <MetricsDashboard
+                lastRow={sheetData[sheetData.length - 1]}
+                knowledgeBase={knowledgeBase}
+                customerType={customerType}
+              />
+            )}
+            
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Financial Metrics Over Time</h2>
               <FinancialChart
                 data={sheetData}
@@ -283,7 +298,7 @@ const App: React.FC = () => {
               />
             </div>
 
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Financial Model</h2>
                 <div className="flex items-center gap-4">
@@ -299,18 +314,40 @@ const App: React.FC = () => {
               <DataTable data={sheetData} knowledgeBase={knowledgeBase} />
             </div>
           </div>
-          <div className="mt-8 lg:mt-0">
-              <div className="sticky top-8 flex flex-col gap-8">
-                  <ChatPanel
-                      messages={chatHistory}
-                      onSendMessage={handleSendMessage}
-                      isLoading={isBotLoading}
-                  />
-                  <VariableControls 
-                      knowledgeBase={knowledgeBase}
-                      simulationInputs={simulationInputs}
-                      onVariableChange={handleVariableChange}
-                  />
+          <div className="mt-8 xl:mt-0 xl:col-span-5">
+            <div className="sticky top-8">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]">
+                    <div className="flex border-b border-slate-200 dark:border-slate-700 shrink-0">
+                        <button onClick={() => setActiveTab('chat')} className={`${tabButtonBaseClasses} ${activeTab === 'chat' ? activeTabClasses : inactiveTabClasses}`}>
+                            <ChatBubbleIcon className="w-5 h-5"/>
+                            <span>Chat</span>
+                             {activeTab === 'chat' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-500"></div>}
+                        </button>
+                        <div className="w-px bg-slate-200 dark:bg-slate-700"></div>
+                         <button onClick={() => setActiveTab('inputs')} className={`${tabButtonBaseClasses} ${activeTab === 'inputs' ? activeTabClasses : inactiveTabClasses}`}>
+                            <SlidersIcon className="w-5 h-5"/>
+                            <span>Inputs</span>
+                            {activeTab === 'inputs' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-500"></div>}
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-800/50">
+                        {activeTab === 'chat' && (
+                            <ChatPanel
+                                messages={chatHistory}
+                                onSendMessage={handleSendMessage}
+                                isLoading={isBotLoading}
+                            />
+                        )}
+                        {activeTab === 'inputs' && (
+                            <VariableControls 
+                                knowledgeBase={knowledgeBase}
+                                simulationInputs={simulationInputs}
+                                onVariableChange={handleVariableChange}
+                            />
+                        )}
+                    </div>
+                </div>
             </div>
           </div>
         </div>
@@ -319,7 +356,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-sans">
+    <div className="min-h-screen text-slate-800 dark:text-slate-200 font-sans">
       <Header />
       <main className="container mx-auto px-4 py-8">
         {renderContent()}

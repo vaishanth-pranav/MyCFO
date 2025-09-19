@@ -29,9 +29,9 @@ export const DataTable: React.FC<DataTableProps> = ({ data, knowledgeBase }) => 
   const headers = Object.keys(knowledgeBase.variables).filter(key => !knowledgeBase.variables[key]?.hidden);
 
   return (
-    <div className="overflow-x-auto relative shadow-md rounded-lg">
+    <div className="overflow-auto relative rounded-lg max-h-[60vh] border border-slate-200 dark:border-slate-700">
       <table className="w-full text-sm text-left text-slate-500 dark:text-slate-400">
-        <thead className="text-xs text-slate-700 uppercase bg-slate-100 dark:bg-slate-700 dark:text-slate-300 sticky top-0">
+        <thead className="text-xs text-slate-700 uppercase bg-gray-50 dark:bg-slate-700/50 sticky top-0 z-10">
           <tr>
             {headers.map(key => (
               <th key={key} scope="col" className="px-6 py-3 whitespace-nowrap">
@@ -40,9 +40,9 @@ export const DataTable: React.FC<DataTableProps> = ({ data, knowledgeBase }) => 
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-white dark:bg-slate-800">
           {data.map((row, rowIndex) => (
-            <tr key={rowIndex} className="bg-white dark:bg-slate-800 border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600/20">
+            <tr key={rowIndex} className="border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/40">
               {headers.map(key => (
                 <td key={key} className="px-6 py-4 whitespace-nowrap font-mono text-right">
                   {formatValue(row[key], knowledgeBase.variables[key]?.unit)}

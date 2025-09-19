@@ -11,8 +11,8 @@ interface MetricCardProps {
 }
 
 const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon }) => (
-  <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg flex items-center space-x-4">
-    <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center">
+  <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 flex items-center space-x-4">
+    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-sky-400 to-cyan-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/20">
       {icon}
     </div>
     <div>
@@ -82,7 +82,7 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ lastRow, kno
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {metrics.map(metric => (
         <MetricCard key={metric.title} {...metric} />
       ))}
