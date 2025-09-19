@@ -1,5 +1,3 @@
-# Stratifi AI
-
 <h1 align="center">Stratifi AI</h1>
 
 <p align="center">
