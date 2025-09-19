@@ -23,7 +23,7 @@ export interface KnowledgeBase {
 }
 
 export type GeminiIntent = {
-  intent: 'UPDATE_VARIABLE' | 'SIMULATE' | 'GET_INFO' | 'UNKNOWN';
+  intent: 'UPDATE_VARIABLE' | 'SIMULATE' | 'GET_INFO' | 'QUERY_DATA' | 'UNKNOWN';
   params: {
     variable?: string;
     value?: number;
@@ -31,6 +31,7 @@ export type GeminiIntent = {
     months?: number;
     [key: string]: any;
   };
+  answer?: string;
 };
 
 // Fix: Add FinancialRow type to resolve import error in ResultsTable.tsx.

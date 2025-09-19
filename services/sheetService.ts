@@ -76,13 +76,28 @@ const evaluateFormula = (formula: string, currentRow: SheetRow, previousRow: She
 };
 
 
-export const recalculateSheet = (data: SheetRow[], kb: KnowledgeBase): SheetRow[] => {
-  const recalculatedData: SheetRow[] = [];
+export const recalculateSheet = (data: SheetRow[], kb: KnowledgeBase, startIndex: number = 0): SheetRow[] => {
+  // Start with the portion of the data that doesn't need recalculation.
+  const recalculatedData: SheetRow[] = data.slice(0, startIndex);
   const formulaEntries = Object.entries(kb.variables).filter(([, config]) => config.formula);
+  const mutableKeys = Object.keys(kb.variables).filter(key => kb.variables[key].mutable);
 
-  data.forEach((row, index) => {
+  // Iterate over the slice of data that needs to be recalculated.
+  data.slice(startIndex).forEach((row, relativeIndex) => {
+    const absoluteIndex = startIndex + relativeIndex;
     let newRow = { ...row };
-    const previousRow = index > 0 ? recalculatedData[index - 1] : null;
+    const previousRow = absoluteIndex > 0 ? recalculatedData[absoluteIndex - 1] : null;
+
+    // For mutable fields that are undefined, null, or blank in the current row,
+    // carry over the value from the previous valid row.
+    if (previousRow) {
+      mutableKeys.forEach(key => {
+        const currentValue = newRow[key];
+        if (currentValue === null || currentValue === undefined || currentValue === '') {
+           newRow[key] = previousRow[key];
+        }
+      });
+    }
     
     // Iteratively calculate formulas to resolve dependencies. 5 passes should be enough for deep dependency chains.
     for (let i = 0; i < 5; i++) {
@@ -97,7 +112,7 @@ export const recalculateSheet = (data: SheetRow[], kb: KnowledgeBase): SheetRow[
   return recalculatedData;
 };
 
-export const simulateMonths = (data: SheetRow[], months: number, kb: KnowledgeBase): SheetRow[] => {
+export const simulateMonths = (data: SheetRow[], months: number, kb: KnowledgeBase, overrides: SheetRow | null): SheetRow[] => {
   let extendedData = [...data];
   if (data.length === 0) return [];
 
@@ -115,6 +130,15 @@ export const simulateMonths = (data: SheetRow[], months: number, kb: KnowledgeBa
       }
     });
     
+    // Apply user-defined overrides for the simulation
+    if (overrides) {
+        Object.entries(overrides).forEach(([key, value]) => {
+            if (kb.variables[key]?.mutable) {
+                newRow[key] = value;
+            }
+        });
+    }
+
     // Set the new month number
     newRow.month = (previousRow.month as number) + 1;
 
@@ -166,7 +190,7 @@ export const exportToExcel = (data: SheetRow[], kb: KnowledgeBase, fileName: str
   XLSX.writeFile(workbook, fileName);
 };
 
-export const exportSampleTemplate = (kb: KnowledgeBase, fileName: string, customerType: 'sme' | 'large'): void => {
+export const exportSampleTemplate = (kb: KnowledgeBase, fileName:string, customerType: 'sme' | 'large'): void => {
     const orderedHeaders = Object.keys(kb.variables);
     const mutableHeaders = orderedHeaders.filter(key => kb.variables[key]?.mutable);
 

@@ -7,6 +7,8 @@ import { ExportButton } from './components/ExportButton';
 import { FinancialChart } from './components/FinancialChart';
 import { HistoryControls } from './components/HistoryControls';
 import { CustomerTypeSelector } from './components/CustomerTypeSelector';
+import { VariableControls } from './components/VariableControls';
+import { MetricsDashboard } from './components/MetricsDashboard';
 import { KNOWLEDGE_BASES } from './constants';
 import { getIntentFromQuery } from './services/geminiService';
 import { parseExcel, recalculateSheet, simulateMonths, exportToExcel, exportSampleTemplate } from './services/sheetService';
@@ -30,6 +32,7 @@ const App: React.FC = () => {
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [customerType, setCustomerType] = useState<'sme' | 'large' | null>(null);
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase | null>(null);
+  const [simulationInputs, setSimulationInputs] = useState<SheetRow | null>(null);
 
   useEffect(() => {
     if (customerType) {
@@ -42,6 +45,7 @@ const App: React.FC = () => {
     } else {
         setKnowledgeBase(null);
         setSelectedMetrics([]);
+        setSimulationInputs(null);
     }
   }, [customerType]);
 
@@ -71,13 +75,10 @@ const App: React.FC = () => {
     try {
       const rawData = await parseExcel(file);
 
-      // Create a mapping from the human-readable description back to the internal key
-      // This is necessary because the exported sample uses descriptions as headers.
       const descriptionToKeyMap = Object.fromEntries(
         Object.entries(knowledgeBase.variables).map(([key, config]) => [config.description, key])
       );
       
-      // Remap the data from the sheet to use the internal keys expected by the application logic
       const data = rawData.map(row => {
         const newRow: SheetRow = {};
         for (const descriptionKey in row) {
@@ -95,6 +96,18 @@ const App: React.FC = () => {
         present: recalculatedData,
         future: [],
       });
+      
+      if (recalculatedData.length > 0) {
+        const lastRow = recalculatedData[recalculatedData.length - 1];
+        const mutableInputs: SheetRow = {};
+        Object.entries(knowledgeBase.variables).forEach(([key, config]) => {
+          if (config.mutable) {
+            mutableInputs[key] = lastRow[key];
+          }
+        });
+        setSimulationInputs(mutableInputs);
+      }
+      
       setChatHistory([
         { sender: 'bot', text: 'Sheet uploaded successfully! You can now ask me to make changes or simulate future months.' }
       ]);
@@ -102,6 +115,7 @@ const App: React.FC = () => {
       console.error(err);
       setError('Failed to process the Excel file. Please ensure it has the correct columns for the selected model.');
       setHistory({ past: [], present: null, future: [] });
+      setSimulationInputs(null);
     }
   };
 
@@ -116,44 +130,57 @@ const App: React.FC = () => {
     try {
       if (!knowledgeBase) {
         addMessageToHistory('bot', "An internal error occurred. Please refresh and select a model.");
-        setIsBotLoading(false);
         return;
       }
       
-      const intent: GeminiIntent = await getIntentFromQuery(message, knowledgeBase);
+      if (!history.present) {
+          addMessageToHistory('bot', "Please upload a sheet first.");
+          return;
+      }
+
+      const intent: GeminiIntent = await getIntentFromQuery(message, knowledgeBase, history.present);
       let botResponse = "I've updated the sheet and recalculated all dependent values.";
       let stateChanged = false;
       let nextData: SheetRow[] | null = null;
       
-      if (!history.present) {
-          addMessageToHistory('bot', "Please upload a sheet first.");
-          setIsBotLoading(false);
-          return;
-      }
-
       let currentData = [...history.present];
 
       switch (intent.intent) {
         case 'UPDATE_VARIABLE': {
-          const { variable, value, month } = intent.params;
-          if (variable && !knowledgeBase.variables[variable]?.mutable) {
-            botResponse = `The variable "${knowledgeBase.variables[variable]?.description || variable}" cannot be directly modified as it is calculated automatically.`;
-            break;
+          const { variable, value } = intent.params || {};
+
+          if (!variable || typeof value !== 'number' || isNaN(value)) {
+              botResponse = "I seem to be missing the variable or a valid numerical value to perform the update. Please try again and be more specific.";
+              break;
           }
-          if (month && month > 0 && month <= currentData.length) {
-            currentData[month - 1][variable] = value;
-          } else {
-            currentData = currentData.map(row => ({ ...row, [variable]: value }));
+          
+          const variableConfig = knowledgeBase.variables[variable];
+          if (!variableConfig) {
+              botResponse = `The variable "${variable}" is not recognized in the current financial model.`;
+              break;
           }
-          nextData = recalculateSheet(currentData, knowledgeBase);
-          stateChanged = true;
+          if (!variableConfig.mutable) {
+              botResponse = `The variable "${variableConfig.description}" cannot be directly modified as it is calculated automatically.`;
+              break;
+          }
+
+          setSimulationInputs(prev => ({ ...prev, [variable]: value }));
+          botResponse = `OK, I've set "${variableConfig.description}" to ${value} for the next simulation. To see the results, ask me to simulate.`;
           break;
         }
         case 'SIMULATE': {
           const { months } = intent.params;
-          nextData = simulateMonths(currentData, months, knowledgeBase);
-          botResponse = `OK, I've simulated ${months} months ahead.`;
+          if (!months || typeof months !== 'number' || months <= 0) {
+              botResponse = "Please specify a valid number of months to simulate.";
+              break;
+          }
+          nextData = simulateMonths(currentData, months, knowledgeBase, simulationInputs);
+          botResponse = `OK, I've simulated ${months} months ahead using your specified inputs.`;
           stateChanged = true;
+          break;
+        }
+        case 'QUERY_DATA': {
+          botResponse = intent.answer || "I found the information, but there was an issue displaying it.";
           break;
         }
         case 'GET_INFO': {
@@ -180,8 +207,15 @@ const App: React.FC = () => {
     } finally {
       setIsBotLoading(false);
     }
-  }, [history, knowledgeBase]);
+  }, [history, knowledgeBase, simulationInputs]);
   
+  const handleVariableChange = useCallback((variable: string, value: number) => {
+    setSimulationInputs(prev => {
+        if (!prev) return null;
+        return { ...prev, [variable]: value };
+    });
+  }, []);
+
   const handleUndo = useCallback(() => {
     if (!canUndo) return;
     setHistory(current => {
@@ -229,42 +263,58 @@ const App: React.FC = () => {
       return <FileUpload onFileUpload={handleFileUpload} onDownloadSample={handleDownloadSample} error={error} />;
     }
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Financial Metrics Over Time</h2>
-            <FinancialChart 
-              data={sheetData} 
-              knowledgeBase={knowledgeBase} 
-              selectedMetrics={selectedMetrics}
-              onMetricChange={handleMetricSelectionChange}
-            />
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Financial Model</h2>
-              <div className="flex items-center gap-4">
-                <HistoryControls
-                  onUndo={handleUndo}
-                  onRedo={handleRedo}
-                  canUndo={canUndo}
-                  canRedo={canRedo}
-                />
-                <ExportButton onExport={handleExport} />
-              </div>
-            </div>
-            <DataTable data={sheetData} knowledgeBase={knowledgeBase} />
-          </div>
-        </div>
-        <div className="mt-8 lg:mt-0">
-           <ChatPanel
-            messages={chatHistory}
-            onSendMessage={handleSendMessage}
-            isLoading={isBotLoading}
+      <>
+        {sheetData.length > 0 && (
+          <MetricsDashboard
+            lastRow={sheetData[sheetData.length - 1]}
+            knowledgeBase={knowledgeBase}
+            customerType={customerType}
           />
+        )}
+        <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Financial Metrics Over Time</h2>
+              <FinancialChart
+                data={sheetData}
+                knowledgeBase={knowledgeBase}
+                selectedMetrics={selectedMetrics}
+                onMetricChange={handleMetricSelectionChange}
+              />
+            </div>
+
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Financial Model</h2>
+                <div className="flex items-center gap-4">
+                  <HistoryControls
+                    onUndo={handleUndo}
+                    onRedo={handleRedo}
+                    canUndo={canUndo}
+                    canRedo={canRedo}
+                  />
+                  <ExportButton onExport={handleExport} />
+                </div>
+              </div>
+              <DataTable data={sheetData} knowledgeBase={knowledgeBase} />
+            </div>
+          </div>
+          <div className="mt-8 lg:mt-0">
+              <div className="sticky top-8 flex flex-col gap-8">
+                  <ChatPanel
+                      messages={chatHistory}
+                      onSendMessage={handleSendMessage}
+                      isLoading={isBotLoading}
+                  />
+                  <VariableControls 
+                      knowledgeBase={knowledgeBase}
+                      simulationInputs={simulationInputs}
+                      onVariableChange={handleVariableChange}
+                  />
+            </div>
+          </div>
         </div>
-      </div>
+      </>
     );
   };
 

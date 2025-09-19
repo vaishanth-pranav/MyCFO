@@ -10,8 +10,7 @@ const largeCustomerVariables: KnowledgeBase['variables'] = {
     "large_customer_accounts_onboarded": { "description": "# of large customer accounts onboarded per month", "formula": "sales_people * large_customer_accounts_per_salesperson", "unit": "count", "mutable": false },
     "cumulative_large_customers": { "description": "Cumulative # of large paying customers", "formula": "previous(cumulative_large_customers) + large_customer_accounts_onboarded", "unit": "count", "mutable": false },
     "average_revenue_per_large_customer": { "description": "Average revenue per large customer", "unit": "currency", "mutable": true },
-    "revenue_from_large_clients": { "description": "Revenue from large clients", "formula": "cumulative_large_customers * average_revenue_per_large_customer", "unit": "currency", "mutable": false },
-    "total_revenues": { "description": "Total Revenues", "formula": "revenue_from_large_clients", "unit": "currency", "mutable": false }
+    "total_revenues": { "description": "Total Revenues", "formula": "cumulative_large_customers * average_revenue_per_large_customer", "unit": "currency", "mutable": false }
 };
 
 // Fix: Explicitly type `smeCustomerVariables` to match the `KnowledgeBase` interface.

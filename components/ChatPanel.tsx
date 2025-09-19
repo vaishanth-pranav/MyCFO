@@ -33,7 +33,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg flex flex-col h-[70vh]">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg flex flex-col h-[50vh]">
       <header className="p-4 border-b border-slate-200 dark:border-slate-700">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">Chat Assistant</h2>
       </header>
