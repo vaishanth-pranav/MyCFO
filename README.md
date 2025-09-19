@@ -1,11 +1,5 @@
 # Stratifi AI
 
-<p align="center">
-  <a href="#" target="_blank">
-    <img src="https://raw.githubusercontent.com/user-attachments/assets/7a345511-9a70-4318-8d4e-63f5d564883f" alt="Stratifi AI Logo" width="80">
-  </a>
-</p>
-
 <h1 align="center">Stratifi AI</h1>
 
 <p align="center">
