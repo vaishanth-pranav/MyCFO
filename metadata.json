@@ -1,5 +1,5 @@
 {
-  "name": "CFO AI Financial Modeler",
-  "description": "An AI-powered application for a CFO's office to automate financial modeling and projections using natural language prompts and a defined knowledge base.",
+  "name": "FinPilot AI",
+  "description": "An AI-powered application to automate financial modeling and projections using natural language prompts and a defined knowledge base.",
   "requestFramePermissions": []
 }

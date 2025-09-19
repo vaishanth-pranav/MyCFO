@@ -16,7 +16,7 @@ export const Header: React.FC = () => {
             <LogoIcon className="w-6 h-6 text-sky-600 dark:text-sky-400" />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">
-            MyCFO AI Modeler
+            FinPilot AI
         </h1>
       </div>
       <p className="mt-3 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">

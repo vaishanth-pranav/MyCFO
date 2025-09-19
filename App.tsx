@@ -254,13 +254,13 @@ const App: React.FC = () => {
 
   const handleExport = () => {
     if (sheetData && knowledgeBase) {
-      exportToExcel(sheetData, knowledgeBase, 'MyCFO_Model_Export.xlsx');
+      exportToExcel(sheetData, knowledgeBase, 'FinPilot_AI_Model_Export.xlsx');
     }
   };
 
   const handleDownloadSample = () => {
     if (customerType && knowledgeBase) {
-      const fileName = `MyCFO_Sample_Template_${customerType.toUpperCase()}.xlsx`;
+      const fileName = `FinPilot_AI_Sample_Template_${customerType.toUpperCase()}.xlsx`;
       exportSampleTemplate(knowledgeBase, fileName, customerType);
     }
   };
